@@ -5,7 +5,6 @@ Dependencies:
 
 ## History of Interesting Commands
 
-
 * `migrate create -seq -ext=.sql -dir=./migrations create_movies_table`
 * `migrate -path=./migrations -database=$GREENLIGHT_DB_DSN up`
 * [PostgreSQL Documentation](https://www.postgresql.org/docs/current/datatype.html)

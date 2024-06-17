@@ -10,6 +10,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/navarrovmn/internal/data"
+
 	// Import PQ driver so that it can register itself with the database/sql package.
 	// The blank identifier stop Go from complaining about not using it.
 	_ "github.com/lib/pq"
@@ -33,6 +35,7 @@ type config struct {
 type application struct {
 	config config
 	logger *slog.Logger
+	models data.Models
 }
 
 func main() {
@@ -51,9 +54,16 @@ func main() {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
+	db, err := openDB(cfg)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
 	app := &application{
 		config: cfg,
 		logger: logger,
+		models: data.NewModels(db),
 	}
 
 	srv := &http.Server{
@@ -66,12 +76,6 @@ func main() {
 	}
 
 	logger.Info("starting server", "addr", srv.Addr, "env", cfg.env)
-
-	db, err := openDB(cfg)
-	if err != nil {
-		logger.Error(err.Error())
-		os.Exit(1)
-	}
 
 	// Defer a call to db.Close() so that the connection pool is closed.
 	defer db.Close()

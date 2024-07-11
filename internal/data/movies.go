@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"time"
@@ -44,9 +45,15 @@ func (m MovieModel) Insert(movie *Movie) error {
 		VALUES ($1, $2, $3, $4)
 		RETURNING id, created_at, version
 	`
+
+	// Use context.WithTimeout() to create a context with 3 seconds of timeout.
+	// Use empty background context as parent.
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
 	args := []any{movie.Title, movie.Year, movie.Runtime, pq.Array(movie.Genres)}
 
-	return m.DB.QueryRow(query, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
+	return m.DB.QueryRowContext(ctx, query, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
 }
 
 func (m MovieModel) Get(id int64) (*Movie, error) {
@@ -57,7 +64,7 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	}
 
 	query := `
-		SELECT id, created_at, title, year, runtime, genres, version
+		SELECT  id, created_at, title, year, runtime, genres, version
 		FROM movies
 		WHERE id = $1
 	`
@@ -65,11 +72,16 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	// Declare a movie struct to hold the data returned by the query
 	var movie Movie
 
+	// Use context.WithTimeout() to create a context with 3 seconds of timeout.
+	// Use empty background context as parent.
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
 	// Execute the query using the QueryRow() method, passing in the provided id value
 	// as a placeholder parameter, and scan the response into the fields of the Movie struct.
 	// Importantly, notice we need to convert the scan target for the genres column using the
 	// pq.Array() adapter function again
-	err := m.DB.QueryRow(query, id).Scan(
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(
 		&movie.ID,
 		&movie.CreatedAt,
 		&movie.Title,
@@ -103,6 +115,11 @@ func (m MovieModel) Update(movie *Movie) error {
 		RETURNING version
 	`
 
+	// Use context.WithTimeout() to create a context with 3 seconds of timeout.
+	// Use empty background context as parent.
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
 	// Creates an args slice containing the values for the placeholder params
 	args := []any{
 		movie.Title,
@@ -115,7 +132,7 @@ func (m MovieModel) Update(movie *Movie) error {
 
 	// Use the QueryRow() method to execute the query, passing in the args slice
 	// as a variadic parameter and scanning the new version into the movie struct.
-	err := m.DB.QueryRow(query, args...).Scan(&movie.Version)
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&movie.Version)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -137,7 +154,13 @@ func (m MovieModel) Delete(id int64) error {
 		DELETE FROM movies
 		WHERE id = $1
 	`
-	result, err := m.DB.Exec(query, id)
+
+	// Use context.WithTimeout() to create a context with 3 seconds of timeout.
+	// Use empty background context as parent.
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := m.DB.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}

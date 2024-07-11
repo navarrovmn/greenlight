@@ -1,7 +1,9 @@
 This is the repo for the Greenlight application developed on Let's Go Further book, by Alex Edwards.
 
 Dependencies:
+* Greenlight DB-DSN: `export GREENLIGHT_DB_DSN='postgres://postgres:postgres@localhost/greenlight?sslmode=disable'`
 * golang-migrate (`brew install golang-migrate`)
+* `go run ./cmd/api`
 
 ## History of Interesting Commands
 

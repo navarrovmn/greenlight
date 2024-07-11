@@ -15,7 +15,7 @@ type Runtime int32
 // Implement a UnmarshalJSON() method on the Runtime type so that it satisfies the
 // json.Unmarshaler interface. IMPORTANT: Because UnmarshalJSON() needs to modify
 // the receiver (our Runtime type), we must use a pointer receiver for this to work correctly.
-// Otherwise, we will only be modifying a copy (which is discarded when this emthod returns).
+// Otherwise, we will only be modifying a copy (which is discarded when this method returns).
 func (r *Runtime) UnmarshalJSON(jsonValue []byte) error {
 	unquotedJSONValue, err := strconv.Unquote(string(jsonValue))
 	if err != nil {

@@ -4,6 +4,9 @@ Dependencies:
 * Greenlight DB-DSN: `export GREENLIGHT_DB_DSN='postgres://postgres:postgres@localhost/greenlight?sslmode=disable'`
 * golang-migrate (`brew install golang-migrate`)
 * `go run ./cmd/api`
+* bcrypt
+
+We are using MailTrap for mailing.
 
 ## History of Interesting Commands
 

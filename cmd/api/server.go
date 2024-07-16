@@ -38,7 +38,15 @@ func (app *application) serve() error {
 		// Shutdown() will return nil if the graceful shutdown was successful,
 		// or an error (closing listeners fails, can't complete before deadline).
 		// We relay this return value to the shutdownError channel
-		shutdownError <- srv.Shutdown(ctx)
+		err := srv.Shutdown(ctx)
+		if err != nil {
+			shutdownError <- err
+		}
+
+		app.logger.Info("completing background tasks", "addr", srv.Addr)
+
+		app.wg.Wait()
+		shutdownError <- nil
 	}()
 
 	// Likewise log a starting server message

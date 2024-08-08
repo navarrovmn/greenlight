@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"database/sql"
+	"expvar"
 	"flag"
 	"github.com/navarrovmn/internal/mailer"
 	"log/slog"
 	"os"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -102,6 +104,20 @@ func main() {
 		models: data.NewModels(db),
 		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 	}
+
+	expvar.NewString("version").Set(version)
+	expvar.Publish("goroutines", expvar.Func(func() any {
+		return runtime.NumGoroutine()
+	}))
+	expvar.Publish("cpus", expvar.Func(func() any {
+		return runtime.NumCPU()
+	}))
+	expvar.Publish("database", expvar.Func(func() any {
+		return db.Stats()
+	}))
+	expvar.Publish("timestamp", expvar.Func(func() any {
+		return time.Now().Unix()
+	}))
 
 	err = app.serve()
 	if err != nil {

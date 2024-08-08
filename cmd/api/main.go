@@ -7,6 +7,7 @@ import (
 	"github.com/navarrovmn/internal/mailer"
 	"log/slog"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -41,6 +42,9 @@ type config struct {
 		password string
 		sender   string
 	}
+	cors struct {
+		trustedOrigins []string
+	}
 }
 
 // Define application struct to hold the dependencies for HTTP handlers, helpers and middleware.
@@ -73,6 +77,11 @@ func main() {
 	flag.StringVar(&cfg.smtp.username, "smtp-username", "", "SMTP Username")
 	flag.StringVar(&cfg.smtp.password, "smtp-password", "", "SMTP Password")
 	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no.reply@greenlight.victornavarro.net>", "SMTP Sender")
+
+	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated)", func(val string) error {
+		cfg.cors.trustedOrigins = strings.Fields(val)
+		return nil
+	})
 
 	flag.Parse()
 

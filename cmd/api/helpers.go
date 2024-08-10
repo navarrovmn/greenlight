@@ -73,8 +73,6 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any
 	default:
 		return err
 	}
-
-	return nil
 }
 
 func (app *application) writeJSON(w http.ResponseWriter, status int, data any, headers http.Header) error {

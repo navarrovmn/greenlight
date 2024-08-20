@@ -44,25 +44,25 @@ db/migrations/up: confirm
 # QUALITY CONTROL
 # ====================================================================== #
 
+## tidy: format all .go files and tidy module dependencies
+.PHONY: tidy
+tidy:
+	@echo 'Formatting .go files...'
+	go fmt ./...
+	@echo 'Tidying module dependencies'
+	go mod tidy
+
 ## audit: tidy dependencies and format, vet and test all code
 .PHONY: audit
-audit: vendor
-	@echo 'Formatting code...'
-	go fmt ./...
+audit:
+	@echo 'Checking module dependencies'
+	go mod tidy -diff
+	go mod verify
 	@echo 'Vetting code...'
 	go vet ./...
 	staticcheck ./...
 	@echo 'Running tests...'
 	go test -race -vet=off ./...
-
-## vendor: tidy and vendor dependencies
-.PHONY: vendor
-vendor:
-	@echo 'Tidying and verifying module dependencies...'
-	go mod tidy
-	go mod verify
-	@echo 'Vendoring dependencies...'
-	go mod vendor
 
 # ====================================================================== #
 # BUILD
